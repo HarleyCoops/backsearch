@@ -1,0 +1,40 @@
+{
+  "name": "backsearch-developer-kit",
+  "version": "0.1.0",
+  "description": "An unofficial developer portal, typed client, CLI, and example gallery for OpenReward BackSearch.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "backsearch": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "npm run typecheck && npm test && npm run build",
+    "cli": "tsx src/cli.ts",
+    "dev": "tsx watch src/server.ts",
+    "example:agent": "tsx examples/research-agent.ts",
+    "example:audit": "tsx examples/leakage-audit.ts",
+    "example:disclosure": "tsx examples/disclosure-lag.ts",
+    "example:signals": "tsx examples/signal-lab.ts",
+    "example:timeline": "tsx examples/coverage-timeline.ts",
+    "start": "node dist/src/server.js",
+    "test": "tsx --test tests/**/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^6.49.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  },
+  "license": "MIT"
+}

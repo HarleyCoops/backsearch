@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A developer workbench for reproducible point-in-time research with OpenReward BackSearch."
+    />
+    <meta name="theme-color" content="#0a0a0b" />
+    <title>BackSearch / Point-in-time research workbench</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body>
+    <div class="page-grid" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="BackSearch workbench home">
+        <span class="brand-mark"><i></i><i></i></span>
+        <span>backsearch<span class="brand-slash">/</span>lab</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#playground">Playground</a>
+        <a href="#signals">Signal lab</a>
+        <a href="#recipes">Recipes</a>
+        <a
+          class="nav-github"
+          href="https://github.com/HarleyCoops/backsearch"
+          rel="noreferrer"
+          >GitHub ↗</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="pulse"></span>
+            Frozen archive · December 2025—June 2026
+          </div>
+          <h1>The web.<br /><em>As it knew it.</em></h1>
+          <p class="hero-lede">
+            Search and fetch the past without leaking the future. A typed client,
+            interactive console, and evidence-first recipes for reproducible
+            research.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#playground">Open workbench</a>
+            <a
+              class="button button-quiet"
+              href="https://docs.openreward.ai/api-reference/backdated-search"
+              rel="noreferrer"
+              >Read the API docs ↗</a
+            >
+          </div>
+        </div>
+
+        <div class="time-orbit" aria-hidden="true">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="orbit-core">
+            <span class="orbit-date">2026</span>
+            <span class="orbit-day">01.15</span>
+          </div>
+          <span class="orbit-label label-search">search</span>
+          <span class="orbit-label label-fetch">fetch</span>
+          <span class="orbit-label label-cite">cite</span>
+        </div>
+      </section>
+
+      <section class="principles" aria-label="Core guarantees">
+        <div>
+          <span>01</span>
+          <strong>Cutoff safe</strong>
+          <p>Every hit is gated by archive crawl time.</p>
+        </div>
+        <div>
+          <span>02</span>
+          <strong>Reproducible</strong>
+          <p>The same query and date see the same frozen corpus.</p>
+        </div>
+        <div>
+          <span>03</span>
+          <strong>Citation ready</strong>
+          <p>Search results preserve source URLs and provenance.</p>
+        </div>
+      </section>
+
+      <section class="workbench section-shell" id="playground">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">Interactive playground</p>
+            <h2>Set the clock. Ask the archive.</h2>
+          </div>
+          <div class="connection-pill" id="connection-pill">
+            <span></span>
+            Checking local API
+          </div>
+        </div>
+
+        <div class="setup-notice" id="setup-notice" hidden>
+          <div>
+            <strong>Connect your OpenReward account</strong>
+            <p>
+              Add <code>OPENREWARD_API_KEY</code> to <code>.env</code>, then
+              restart the server. The key never reaches browser code.
+            </p>
+          </div>
+          <button class="copy-command" data-copy="cp .env.example .env">
+            cp .env.example .env
+          </button>
+        </div>
+
+        <div class="access-token-field" id="access-token-field" hidden>
+          <label for="access-token">Portal access token</label>
+          <input
+            id="access-token"
+            type="password"
+            autocomplete="off"
+            placeholder="Required by this deployment"
+          />
+        </div>
+
+        <div class="console">
+          <form class="query-panel" id="search-form">
+            <div class="mode-switch" role="tablist" aria-label="Research mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected="true"
+                class="mode-button active"
+                data-view="search"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected="false"
+                class="mode-button"
+                data-view="compare"
+              >
+                Compare cutoffs
+              </button>
+            </div>
+
+            <label class="field field-query">
+              <span>Research question</span>
+              <textarea
+                id="query"
+                name="query"
+                rows="3"
+                minlength="2"
+                maxlength="500"
+                required
+              >Bank of Japan interest rate policy decision</textarea>
+            </label>
+
+            <div class="preset-row" aria-label="Example queries">
+              <span>Try</span>
+              <button type="button" data-preset="boj">BOJ policy rate</button>
+              <button type="button" data-preset="bitcoin">Bitcoin demand</button>
+              <button type="button" data-preset="chips">AI chip controls</button>
+            </div>
+
+            <div class="field-row">
+              <label class="field">
+                <span id="date-label">Knowledge cutoff</span>
+                <input
+                  id="as-of"
+                  name="as_of"
+                  type="date"
+                  min="2025-12-01"
+                  max="2026-06-30"
+                  value="2026-01-15"
+                  required
+                />
+              </label>
+              <label class="field compare-only" hidden>
+                <span>Later cutoff</span>
+                <input
+                  id="later-as-of"
+                  type="date"
+                  min="2025-12-01"
+                  max="2026-06-30"
+                  value="2026-02-15"
+                />
+              </label>
+              <label class="field">
+                <span>Search mode</span>
+                <select id="search-mode" name="mode">
+                  <option value="hybrid">Hybrid · best quality</option>
+                  <option value="bm25">BM25 · lexical</option>
+                  <option value="dense">Dense · semantic</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Results</span>
+                <select id="result-count" name="k">
+                  <option value="5">5 hits</option>
+                  <option value="10" selected>10 hits</option>
+                  <option value="15">15 hits</option>
+                  <option value="25">25 hits</option>
+                </select>
+              </label>
+            </div>
+
+            <details class="filters">
+              <summary>Domain controls</summary>
+              <div class="field-row">
+                <label class="field">
+                  <span>Only this site</span>
+                  <input
+                    id="site-filter"
+                    type="text"
+                    placeholder="reuters.com"
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="field">
+                  <span>Or block domains</span>
+                  <input
+                    id="blocked-domains"
+                    type="text"
+                    placeholder="example.com, other.com"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            </details>
+
+            <button class="run-button" id="run-button" type="submit">
+              <span id="run-label">Search the archive</span>
+              <span class="run-cost" id="run-cost">$0.01</span>
+              <span class="run-arrow">↗</span>
+            </button>
+          </form>
+
+          <section class="result-panel" aria-live="polite" aria-busy="false">
+            <div class="result-toolbar">
+              <div>
+                <span class="terminal-dot"></span>
+                <span id="result-status">Ready</span>
+              </div>
+              <button type="button" id="clear-results">Clear</button>
+            </div>
+            <div class="empty-state" id="empty-state">
+              <div class="empty-glyph"><span></span></div>
+              <strong>No future knowledge allowed.</strong>
+              <p>
+                Results will appear here with crawl dates, source hosts, and
+                snapshot controls.
+              </p>
+            </div>
+            <div id="results"></div>
+          </section>
+        </div>
+
+        <div class="code-dock">
+          <div class="code-tabs" role="tablist" aria-label="Code language">
+            <span>Use this query</span>
+            <button class="code-tab active" data-code="curl">curl</button>
+            <button class="code-tab" data-code="typescript">TypeScript</button>
+            <button class="code-tab" data-code="python">Python</button>
+          </div>
+          <div class="code-window">
+            <pre><code id="code-sample"></code></pre>
+            <button class="copy-code" id="copy-code" type="button">Copy</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="signal-lab section-shell" id="signals">
+        <div class="section-heading signal-heading">
+          <div>
+            <p class="kicker">As-of signal lab</p>
+            <h2>Pair the archive with weird, useful clocks.</h2>
+          </div>
+          <p class="heading-note">
+            The trick is not more data. It is knowing exactly when each datum
+            became admissible evidence.
+          </p>
+        </div>
+        <div class="source-grid" id="source-grid">
+          <div class="source-skeleton"></div>
+          <div class="source-skeleton"></div>
+          <div class="source-skeleton"></div>
+        </div>
+      </section>
+
+      <section class="recipes section-shell" id="recipes">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">Runnable recipes</p>
+            <h2>Four ways to make time an API primitive.</h2>
+          </div>
+        </div>
+        <div class="recipe-grid">
+          <article class="recipe recipe-featured">
+            <div class="recipe-number">01</div>
+            <span class="recipe-tag">OpenAI + BackSearch</span>
+            <h3>Leakage-safe research agent</h3>
+            <p>
+              Give a reasoning model two archive tools, pin the cutoff in the
+              runtime, and require source-backed claims.
+            </p>
+            <code>npm run example:agent</code>
+          </article>
+          <article class="recipe">
+            <div class="recipe-number">02</div>
+            <span class="recipe-tag">CFTC + BackSearch</span>
+            <h3>Bitcoin crowding detector</h3>
+            <p>
+              Compare leveraged-money futures positioning with only the
+              reporting that existed at that week's cutoff.
+            </p>
+            <code>npm run example:signals</code>
+          </article>
+          <article class="recipe">
+            <div class="recipe-number">03</div>
+            <span class="recipe-tag">Audit</span>
+            <h3>Lookahead leakage test</h3>
+            <p>
+              Assert that every search and fetch crawl time is on or before the
+              declared evidence boundary.
+            </p>
+            <code>npm run example:audit</code>
+          </article>
+          <article class="recipe">
+            <div class="recipe-number">04</div>
+            <span class="recipe-tag">UW key required</span>
+            <h3>Congress disclosure-lag clock</h3>
+            <p>
+              Separate when a trade occurred from when the public disclosure
+              made it knowable. Results stay local.
+            </p>
+            <code>npm run example:disclosure</code>
+          </article>
+        </div>
+      </section>
+
+      <section class="security-band">
+        <div class="security-icon">⌁</div>
+        <div>
+          <p class="kicker">Built for secrets to stay secret</p>
+          <h2>Your provider key never enters the browser.</h2>
+        </div>
+        <p>
+          The local server is a narrow, validated proxy. It binds to
+          <code>127.0.0.1</code> by default, rate-limits requests, and supports a
+          separate access token for intentional remote deployments.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="brand footer-brand">
+        <span class="brand-mark"><i></i><i></i></span>
+        <span>backsearch<span class="brand-slash">/</span>lab</span>
+      </div>
+      <p>
+        An unofficial developer workbench for
+        <a href="https://www.gr.inc/releases/introducing-backsearch"
+          >BackSearch by General Reasoning</a
+        >
+        and <a href="https://openreward.ai">OpenReward</a>.
+      </p>
+      <span>MIT · 2026</span>
+    </footer>
+
+    <dialog id="snapshot-dialog">
+      <div class="dialog-bar">
+        <span>Archived page snapshot</span>
+        <button id="close-dialog" type="button" aria-label="Close">×</button>
+      </div>
+      <div id="snapshot-content"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
